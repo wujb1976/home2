@@ -1,0 +1,89 @@
+# XcodeGen 工程描述：在 Mac 上跑 `xcodegen generate` 即可生成 HomeIPTV.xcodeproj
+# 不用手动 New Project，不用拖文件，一行命令出工程
+name: HomeIPTV
+options:
+  bundleIdPrefix: com.dushu.homeiptv
+  deploymentTarget:
+    tvos: "16.0"
+  developmentLanguage: zh-Hans
+
+schemes:
+  HomeIPTV:
+    build:
+      targets:
+        HomeIPTV: all
+      parallelizeBuild: true
+    test:
+      targets:
+        - HomeIPTVTests
+        - HomeIPTVUITests
+      gatherLogsAfterCommandFailed: true
+
+targets:
+  HomeIPTV:
+    type: application
+    platform: tvOS
+    sources:
+      - path: swift
+        excludes: [Info.plist]
+      # 内置的首屏快照（首次启动不用等网络）+ tvOS 图标/Top Shelf 资源
+      - path: swift/Resources
+    info:
+      path: Info.plist
+      properties:
+        CFBundleDisplayName: HomeIPTV
+        CFBundleShortVersionString: "1.0.0"
+        CFBundleVersion: "1"
+        UILaunchScreen: {}
+        # tvOS 的图标与 Top Shelf 是 brandassets（分层图）
+        NSAppTransportSecurity:
+          NSAllowsArbitraryLoads: true
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.dushu.homeiptv
+        PRODUCT_NAME: "$(TARGET_NAME)"
+        MARKETING_VERSION: "1.0.0"
+        CURRENT_PROJECT_VERSION: "1"
+        CODE_SIGN_STYLE: Automatic
+        ENABLE_HARDENED_RUNTIME: YES
+        SWIFT_VERSION: "6.0"
+        ALWAYS_SEARCH_USER_PATHS: "NO"
+        TARGETED_DEVICE_FAMILY: "3"
+        SDKROOT: appletvos
+        SUPPORTED_PLATFORMS: appletvos appletvsimulator
+
+  HomeIPTVTests:
+    type: bundle.unit-test
+    platform: tvOS
+    sources:
+      - path: Tests
+        excludes:
+          # UI 测试文件有自己的目标，不能同时编进单元测试目标
+          # （否则 XCUIApplication 会在非 UI 测试进程里被调用）
+          - "UITests/**"
+    dependencies:
+      - target: HomeIPTV
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.dushu.homeiptv.tests
+        GENERATE_INFOPLIST_FILE: YES
+        SWIFT_VERSION: "6.0"
+        TARGETED_DEVICE_FAMILY: "3"
+        SDKROOT: appletvos
+        SUPPORTED_PLATFORMS: appletvos appletvsimulator
+
+  HomeIPTVUITests:
+    type: bundle.ui-testing
+    platform: tvOS
+    sources:
+      - path: Tests/UITests
+    dependencies:
+      - target: HomeIPTV
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.dushu.homeiptv.uitests
+        GENERATE_INFOPLIST_FILE: YES
+        SWIFT_VERSION: "6.0"
+        TARGETED_DEVICE_FAMILY: "3"
+        SDKROOT: appletvos
+        SUPPORTED_PLATFORMS: appletvos appletvsimulator
